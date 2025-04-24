@@ -153,7 +153,7 @@ class ChatOptions(OpenAiApiCallOptions):
         description="Maximum number of attempts to connect to the OpenAI API",
     )
     language: str = Field(
-        default="en",
+        default="ko-KR",
         description="Initial language adopted by the assistant. Use either the ISO-639-1 "
         "format (e.g. 'pt'), or an RFC5646 language tag (e.g. 'pt-br').",
     )

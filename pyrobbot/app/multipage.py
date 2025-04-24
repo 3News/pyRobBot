@@ -582,7 +582,7 @@ class MultipageChatbotApp(AbstractMultipageApp):
         self._build_sidebar_tabs()
 
         with self.sidebar_tabs["settings"]:
-            caption = f"\u2699\uFE0F {self.selected_page.title}"
+            caption = f"\u2699\ufe0f {self.selected_page.title}"
             st.caption(caption)
             current_chat_configs = self.selected_page.chat_obj.configs
 
@@ -599,6 +599,33 @@ class MultipageChatbotApp(AbstractMultipageApp):
                 current_chat_configs = self.selected_page.chat_obj.configs.copy()
                 new_configs = current_chat_configs.model_dump()
                 new_configs.update(updates_to_chat_configs)
+
+                # Convert ai_instructions from string representation to tuple if necessary
+                if isinstance(new_configs.get("ai_instructions"), str):
+                    import ast
+
+                    try:
+                        new_configs["ai_instructions"] = ast.literal_eval(
+                            new_configs["ai_instructions"]
+                        )
+                        # Ensure it's a tuple of strings
+                        if not isinstance(
+                            new_configs["ai_instructions"], tuple
+                        ) or not all(
+                            isinstance(item, str)
+                            for item in new_configs["ai_instructions"]
+                        ):
+                            raise ValueError("Parsed value is not a tuple of strings")
+                    except (ValueError, SyntaxError) as e:
+                        logger.error("Failed to parse ai_instructions string: {}", e)
+                        # Revert to default or handle error appropriately
+                        # For now, let's revert to default from the model
+                        new_configs["ai_instructions"] = (
+                            self.selected_page.chat_obj.configs.model_fields[
+                                "ai_instructions"
+                            ].get_default()
+                        )
+
                 new_configs = self.selected_page.chat_obj.configs.model_validate(
                     new_configs
                 )
@@ -619,7 +646,7 @@ class MultipageChatbotApp(AbstractMultipageApp):
                 with contextlib.suppress(AttributeError, ValueError, OSError):
                     # st image raises some exceptions occasionally
                     avatars = get_avatar_images()
-                    st.image(avatars["assistant"], use_column_width=True)
+                    st.image(avatars["assistant"], use_container_width=True)
             st.subheader(
                 GeneralDefinitions.PACKAGE_DESCRIPTION,
                 divider="rainbow",
@@ -647,7 +674,7 @@ class MultipageChatbotApp(AbstractMultipageApp):
                     )
                 with center:
                     # Add button to toggle voice output
-                    speaking_head_in_silhouette = "\U0001F5E3"
+                    speaking_head_in_silhouette = "\U0001f5e3"
                     st.toggle(
                         key="toggle_voice_output",
                         label=speaking_head_in_silhouette,
@@ -656,7 +683,7 @@ class MultipageChatbotApp(AbstractMultipageApp):
                     )
                 with right:
                     # Add button to toggle continuous voice input
-                    _infinity_emoji = "\U0000221E"
+                    _infinity_emoji = "\U0000221e"
                     st.toggle(
                         key="toggle_continuous_voice_input",
                         label=":microphone:",

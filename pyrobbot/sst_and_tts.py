@@ -197,7 +197,7 @@ class TextToSpeech(SpeechAndTextConfigs):
 
     def _tts_google(self) -> AudioSegment:
         """Convert text to speech using Google's TTS. Return a WAV BytesIO object."""
-        tts = gTTS(self.text, lang=self.language)
+        tts = gTTS(self.text, lang=self.language.split("-")[0])
         mp3_buffer = io.BytesIO()
         tts.write_to_fp(mp3_buffer)
         mp3_buffer.seek(0)
